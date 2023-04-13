@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatiks.Web", "Chatiks.Web\Chatiks.Web.csproj", "{DF1FC5A7-7B3C-40C4-A4A8-9775F53C9AA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatiks.Core", "Chatiks.Core\Chatiks.Core.csproj", "{8BE6961B-47AA-479E-9BEE-0187EBDF7C5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatiks.Chat", "Chatiks.Chat\Chatiks.Chat.csproj", "{6A881102-4926-433D-9A3C-2D49A2D46425}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatiks.Tools", "Chatiks.Tools\Chatiks.Tools.csproj", "{FEFFC120-42C1-4300-8A21-33ABE2E4A399}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatiks.User", "Chatiks.User\Chatiks.User.csproj", "{CCF485C5-6F84-4710-9313-01BC55002F81}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF1FC5A7-7B3C-40C4-A4A8-9775F53C9AA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF1FC5A7-7B3C-40C4-A4A8-9775F53C9AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF1FC5A7-7B3C-40C4-A4A8-9775F53C9AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF1FC5A7-7B3C-40C4-A4A8-9775F53C9AA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BE6961B-47AA-479E-9BEE-0187EBDF7C5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BE6961B-47AA-479E-9BEE-0187EBDF7C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BE6961B-47AA-479E-9BEE-0187EBDF7C5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BE6961B-47AA-479E-9BEE-0187EBDF7C5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A881102-4926-433D-9A3C-2D49A2D46425}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A881102-4926-433D-9A3C-2D49A2D46425}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A881102-4926-433D-9A3C-2D49A2D46425}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A881102-4926-433D-9A3C-2D49A2D46425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEFFC120-42C1-4300-8A21-33ABE2E4A399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEFFC120-42C1-4300-8A21-33ABE2E4A399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEFFC120-42C1-4300-8A21-33ABE2E4A399}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEFFC120-42C1-4300-8A21-33ABE2E4A399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCF485C5-6F84-4710-9313-01BC55002F81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF485C5-6F84-4710-9313-01BC55002F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCF485C5-6F84-4710-9313-01BC55002F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF485C5-6F84-4710-9313-01BC55002F81}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
