@@ -27,7 +27,7 @@ public class ChatMessage
 
     public virtual ChatUser ChatUser { get; init; }
 
-    public virtual ChatBase Chat { get; }
+    public virtual ChatBase Chat { get; init; }
 
     [BackingField(nameof(_imageLinks))]
     public virtual IReadOnlyCollection<ChatMessageImageLink> MessageImageLinks => _imageLinks.AsReadOnly();
@@ -41,13 +41,14 @@ public class ChatMessage
             .Concat(imagesToAddExternalIds.Select(ChatMessageImageLink.Create)).ToList();
     }
 
-    public static ChatMessage Create(ChatUser sender, string text, params long[] externalImagesIds)
+    public static ChatMessage Create(ChatBase chat, ChatUser sender, string text, params long[] externalImagesIds)
     {
         var chatMessage = new ChatMessage
         {
             SendTime = DateTime.UtcNow,
             Text = new MessageText(text),
-            ChatUser = sender
+            ChatUser = sender,
+            Chat = chat
         };
 
         foreach (var externalImageId in externalImagesIds)

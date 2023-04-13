@@ -10,9 +10,7 @@ public partial class PrivateChat: ChatBase
     public long OtherUserId { get; private set; }
 
     public ChatUser OtherUser { get; private set; }
-    
-    public override IReadOnlyCollection<ChatUser> ChatUsers => new List<ChatUser> { Creator, OtherUser }.AsReadOnly();
-    
+
     public static PrivateChat Create(long externalCreatorId, long externalOtherUserId)
     {
         var privateChat = new PrivateChat
@@ -25,5 +23,10 @@ public partial class PrivateChat: ChatBase
         privateChat.OtherUser = ChatUser.CreateEnteredUser(privateChat, externalOtherUserId, privateChat.Creator);
         
         return privateChat;
+    }
+
+    public override IReadOnlyCollection<ChatUser> GetChatUsers()
+    {
+        return new[] { Creator, OtherUser };
     }
 }

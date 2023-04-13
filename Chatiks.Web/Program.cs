@@ -32,14 +32,15 @@ builder.Services.Configure<HubOptions>(options =>
     options.MaximumReceiveMessageSize = null;
 });
 
-var diManagerTypes =  AppDomain.CurrentDomain.GetAssemblies()
+var diManagers =  AppDomain.CurrentDomain.GetAssemblies()
     .SelectMany(a => a.GetTypes())
-    .Where(t => typeof(IDiManager).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+    .Where(t => typeof(IDiManager).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+    .Select(x => (IDiManager)Activator.CreateInstance(x))
+    .ToArray();
 
-foreach (var diManagerType in diManagerTypes)
+foreach (var diManager in diManagers)
 {
-    var diManagerInstance = (IDiManager)Activator.CreateInstance(diManagerType);
-    diManagerInstance?.Register(builder.Services, builder.Configuration);
+    diManager?.Register(builder.Services, builder.Configuration);
 }
 
 builder.Services.AddAuthorization();
@@ -49,6 +50,11 @@ MapsterConfigure.Configure(config);
 builder.Services.AddSingleton(config);
 
 var app = builder.Build();
+
+foreach (var diManager in diManagers)
+{
+    await diManager?.OnAppStartedActions(builder.Services, builder.Configuration);
+}
 
 app.MapControllerRoute(
     name: "default",

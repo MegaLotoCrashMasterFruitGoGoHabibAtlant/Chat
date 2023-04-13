@@ -13,6 +13,11 @@ public class ChatStore : IChatStore
 {
     private readonly ChatContext _context;
 
+    public ChatStore(ChatContext context)
+    {
+        _context = context;
+    }
+
     public IQueryable<ChatBase> Chats => _context.Chats;
 
     public Task<ChatBase> GetChatAsync(ChatSpecification specification)
@@ -49,9 +54,19 @@ public class ChatStore : IChatStore
 
     public async Task<bool> IsUserInChatAsync(long externalUserId, long chatId)
     {
-        return await _context.Chats
-            .Where(x => x.Id == chatId)
+        var chatQuery = _context.Chats
+            .Where(x => x.Id == chatId);
+        
+        var privateChatsContains = await chatQuery
+            .OfType<PrivateChat>()
+            .SelectMany(x => new [] {x.Creator, x.OtherUser})
+            .AnyAsync(x => x.ExternalUserId == externalUserId);
+            
+       var publicChatsContains = await chatQuery
+            .OfType<PublicChat>()
             .SelectMany(x => x.ChatUsers)
             .AnyAsync(x => x.ExternalUserId == externalUserId);
+
+        return privateChatsContains || publicChatsContains;
     }
 }

@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Chatiks.Chat.Data.EF;
 using Chatiks.Chat.DomainApi;
 using Chatiks.Chat.DomainApi.Interfaces;
@@ -20,6 +23,7 @@ public class DIManager: IDiManager
         });
         
         services.AddScoped<IChatMessagesStore, ChatMessagesStore>();
+        services.AddScoped<IChatStore, ChatStore>();
     }
 
     public async Task OnAppStartedActions(IServiceCollection services, IConfiguration configuration)

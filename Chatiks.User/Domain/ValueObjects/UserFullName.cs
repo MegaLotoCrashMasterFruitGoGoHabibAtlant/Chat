@@ -13,11 +13,16 @@ public class UserFullName: ValueObject
         FirstName = firstName;
         LastName = lastName;
     }
-    
+
     public UserFullName(string firstName, string lastName)
     {
         FirstName = new UserNamePart(firstName);
         LastName = new UserNamePart(lastName);
+    }
+    
+    protected UserFullName()
+    {
+        
     }
     
     protected override IEnumerable<object> GetEqualityComponents()

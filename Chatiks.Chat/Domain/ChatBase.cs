@@ -16,8 +16,8 @@ public abstract class ChatBase
 
     [BackingField(nameof(_messages))]
     public IReadOnlyCollection<ChatMessage> Messages => _messages.AsReadOnly();
-    
-    public abstract IReadOnlyCollection<ChatUser> ChatUsers { get; }
+
+    public abstract IReadOnlyCollection<ChatUser> GetChatUsers();
 
     protected ChatBase()
     {
@@ -26,14 +26,14 @@ public abstract class ChatBase
     
     public ChatMessage SendMessage(long externalUserId, string text, params long[] externalImagesIds)
     {
-        var chatUser = ChatUsers.FirstOrDefault(x => x.ExternalUserId == externalUserId);
+        var chatUser = GetChatUsers().FirstOrDefault(x => x.ExternalUserId == externalUserId);
         
         if (chatUser == null)
         {
-            throw new InvalidOperationException("User is not in chat");
+            throw new InvalidOperationException("User is not in chat. Check that you included it");
         }
         
-        var chatMessage = ChatMessage.Create(chatUser, text, externalImagesIds);
+        var chatMessage = ChatMessage.Create(this, chatUser, text, externalImagesIds);
         
         _messages.Add(chatMessage);
         

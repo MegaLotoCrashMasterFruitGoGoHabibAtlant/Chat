@@ -14,7 +14,14 @@ public class CoreContext : DbContext
     {
         
     }
-    
+
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+    //     optionsBuilder.UseNpgsql("");
+    //     
+    //     base.OnConfiguring(optionsBuilder);
+    // }
+
     public DbSet<Image> Images { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)

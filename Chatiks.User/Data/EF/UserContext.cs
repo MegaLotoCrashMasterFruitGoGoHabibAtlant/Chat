@@ -14,6 +14,13 @@ public class UserContext : IdentityDbContext<Domain.User, IdentityRole<long>, lo
     {
     }
 
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+    //     optionsBuilder.UseNpgsql("");
+    //     
+    //     base.OnConfiguring(optionsBuilder);
+    // }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<Domain.User>(u =>

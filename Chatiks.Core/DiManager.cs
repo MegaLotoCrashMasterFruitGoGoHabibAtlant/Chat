@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Chatiks.Core.Data.EF;
+using Chatiks.Core.DomainApi;
+using Chatiks.Core.DomainApi.Interfaces;
 using Chatiks.Tools.DI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,8 @@ public class DiManager: IDiManager
         {
             options.UseNpgsql(connectionString);
         });
+
+        services.AddScoped<IImagesStore, ImagesStore>();
     }
 
     public async Task OnAppStartedActions(IServiceCollection services, IConfiguration configuration)

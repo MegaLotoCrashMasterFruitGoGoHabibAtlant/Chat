@@ -1,13 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Chatiks.Adapters;
-using Chatiks.Chat.Domain;
 using Chatiks.Chat.DomainApi.Interfaces;
-using Chatiks.Core.DomainApi;
+using Chatiks.Core.DomainApi.Interfaces;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +11,10 @@ public class GetChatMessagesHadnlder: CheckUserInChatQueryHandlerBase<GetChatMes
 {
     private readonly TypeAdapterConfig _typeAdapterConfig;
     private readonly HttpContextAccessor _contextAccessor;
-    private readonly ImagesStore _imagesStore;
+    private readonly IImagesStore _imagesStore;
     private readonly IChatMessagesStore _chatMessagesStore;
     
-    public GetChatMessagesHadnlder(UserManager<User.Domain.User> userManager, HttpContextAccessor contextAccessor, IChatStore chatStore, TypeAdapterConfig typeAdapterConfig, ImagesStore imagesStore, IChatMessagesStore chatMessagesStore) : base(userManager, contextAccessor, chatStore)
+    public GetChatMessagesHadnlder(UserManager<User.Domain.User> userManager, HttpContextAccessor contextAccessor, IChatStore chatStore, TypeAdapterConfig typeAdapterConfig, IImagesStore imagesStore, IChatMessagesStore chatMessagesStore) : base(userManager, contextAccessor, chatStore)
     {
         _typeAdapterConfig = typeAdapterConfig;
         _contextAccessor = contextAccessor;

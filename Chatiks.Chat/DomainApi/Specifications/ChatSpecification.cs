@@ -88,7 +88,7 @@ public class ChatSpecification : Specification<ChatBase>
         
         if (WithExternalUserId.HasValue)
         {
-            trueExpression = trueExpression.And(x => x.ChatUsers.Any(u => u.ExternalUserId == WithExternalUserId.Value));
+            //trueExpression = trueExpression.And(x => x.ChatUsers.Any(u => u.ExternalUserId == WithExternalUserId.Value));
         }
         
         if (RequiredIncludedIds != null && RequiredIncludedIds.Any())

@@ -16,7 +16,7 @@ public class PublicChat: ChatBase
     }
 
     [BackingField(nameof(_chatUsers))]
-    public override IReadOnlyCollection<ChatUser> ChatUsers => _chatUsers.AsReadOnly();
+    public IReadOnlyCollection<ChatUser> ChatUsers => _chatUsers.AsReadOnly();
     
     public ChatName ChatName { get; private set; }
     
@@ -64,5 +64,10 @@ public class PublicChat: ChatBase
         }
         
         _chatUsers.Remove(chatUser);
+    }
+
+    public override IReadOnlyCollection<ChatUser> GetChatUsers()
+    {
+        return _chatUsers.AsReadOnly();
     }
 }
