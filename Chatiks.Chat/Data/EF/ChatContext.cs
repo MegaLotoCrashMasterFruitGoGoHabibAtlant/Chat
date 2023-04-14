@@ -77,7 +77,8 @@ public class ChatContext : DbContext
                 .HasForeignKey(x => x.ChatId);
             
             cm.Property(x => x.SendTime)
-                .HasColumnType("timestamp");
+                .HasColumnType("timestamp")
+                .IsRequired();
             
             cm.Property(x => x.EditTime)
                 .HasColumnType("timestamp")

@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using Chatiks.Core.Data.EF;
 using Chatiks.Core.Domain;
 using Chatiks.Core.DomainApi.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chatiks.Core.DomainApi;
 

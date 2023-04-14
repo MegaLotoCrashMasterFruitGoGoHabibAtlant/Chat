@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Transactions;
 using Chatiks.Chat.Domain;
 using Chatiks.Chat.Domain.ValueObjects;
 using Chatiks.Chat.DomainApi.Interfaces;
@@ -41,54 +36,51 @@ public class MessengerHub : Hub
     {
         var response = new SendMessageToChatResponse();
 
-        using (var transactionScope = new TransactionScope())
+        var user = await _userManager.FindByNameAsync(Context.User.Identity.Name);
+
+        var chat = await _chatStore.Chats
+            .Include(x => x.ChatUsers)
+            .FirstAsync(x => x.Id == request.ChatId);
+
+        var images = await _imagesStore.GetOrCreateImagesAsync(request.ImagesBase64 ?? new string[0]);
+
+        chat.SendMessage(user.Id, request.Text, images.Select(x => x.Id).ToArray());
+
+        await _chatStore.UpdateChatAsync(chat);
+
+        response.MessageId = chat.Messages.Last().Id;
+
+        response.Text = request.Text;
+        response.ChatId = request.ChatId;
+        response.SendTime = DateTime.Now;
+        response.SenderName = user.FullName.ToString();
+        response.Images = images.Select(i => new SendMessageToChatImageResponse
         {
-            var user = await _userManager.FindByNameAsync(Context.User.Identity.Name);
+            Base64String = i.Base64String
+        }).ToArray();
 
-            var chat = await _chatStore.Chats
-                .Include(x => x.ChatUsers)
-                .FirstAsync(x => x.Id == request.ChatId);
+        // Refactor this !!!
+        response.IsMe = true;
 
-            var images = await _imagesStore.GetOrCreateImagesAsync(request.ImagesBase64 ?? new string[0]);
+        await Clients.Caller.SendCoreAsync("messageSendEvent", new[]
+        {
+            response
+        });
 
-            chat.SendMessage(user.Id, request.Text, images.Select(x => x.Id).ToArray());
+        var connections = chat.ChatUsers.Select(x => x.ExternalUserId)
+            .Where(u => u != user.Id)
+            .Select(u => _userConnections.GetValueOrDefault(u))
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToArray();
 
-            await _chatStore.UpdateChatAsync(chat);
+        response.IsMe = false;
 
-            response.MessageId = chat.Messages.Last().Id;
+        var clientsFromChat = Clients.Clients(connections);
 
-            response.Text = request.Text;
-            response.ChatId = request.ChatId;
-            response.SendTime = DateTime.Now;
-            response.SenderName = user.FullName.ToString();
-            response.Images = images.Select(i => new SendMessageToChatImageResponse
-            {
-                Base64String = i.Base64String
-            }).ToArray();
-
-            // Refactor this !!!
-            response.IsMe = true;
-
-            await Clients.Caller.SendCoreAsync("messageSendEvent", new[]
-            {
-                response
-            });
-
-            var connections = chat.ChatUsers.Select(x => x.ExternalUserId)
-                .Where(u => u != user.Id)
-                .Select(u => _userConnections.GetValueOrDefault(u))
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .ToArray();
-
-            response.IsMe = false;
-
-            var clientsFromChat = Clients.Clients(connections);
-
-            await clientsFromChat.SendCoreAsync("messageSendEvent", new[]
-            {
-                response
-            });
-        }
+        await clientsFromChat.SendCoreAsync("messageSendEvent", new[]
+        {
+            response
+        });
     }
 
     [HubMethodName("сreateChat")]

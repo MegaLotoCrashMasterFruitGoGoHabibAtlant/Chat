@@ -82,6 +82,8 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
             var chatData = new GetChatsResponse();
             chatsData.Add(chatData);
 
+            chatData.Id = chat.Id;
+            
             if (chat is PublicChat publicChat)
             {
                 chatData.Name = publicChat.ChatName.ToString();
@@ -92,6 +94,7 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
                 var other = privateChat.GetOtherUser();
                 var otherUser = await _userManager.FindByIdAsync(other.ExternalUserId.ToString());
                 chatData.Name = otherUser.FullName.ToString();
+                chatData.IsPrivate = true;
             }
 
             var lastMess = chat.Messages.LastOrDefault();
@@ -102,6 +105,20 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
                 chatData.LastMessageSender = lastMessageOwner.FullName.ToString();
                 chatData.LastMessageSendTime = lastMess.SendTime.ToShortDateString();
             }
+            
+            var chatUsersExternalIds = chat.ChatUsers.Select(x => x.ExternalUserId).ToArray();
+            var chatUsers = await _userManager.Users
+                .Where(x => chatUsersExternalIds.Contains(x.Id))
+                .ToArrayAsync(cancellationToken: cancellationToken);
+                
+            chatData.ChatUsers = chatUsers
+                .Select(x => new ChatUserResponse()
+                {
+                    FirstName = x.FullName.FirstName.ToString(),
+                    LastName = x.FullName.LastName.ToString(),
+                    UserId = x.Id
+                })
+                .ToList();
         }
 
         return chatsData;

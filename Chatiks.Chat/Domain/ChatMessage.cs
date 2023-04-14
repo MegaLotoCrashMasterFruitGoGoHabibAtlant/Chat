@@ -45,7 +45,7 @@ public class ChatMessage
     {
         var chatMessage = new ChatMessage
         {
-            SendTime = DateTime.UtcNow,
+            SendTime = DateTime.Now,
             Text = new MessageText(text),
             ChatUser = sender,
             Chat = chat

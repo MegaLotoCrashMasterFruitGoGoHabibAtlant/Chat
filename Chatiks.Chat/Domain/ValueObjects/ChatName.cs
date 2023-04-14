@@ -32,4 +32,9 @@ public class ChatName: ValueObject
     {
         yield return Value;
     }
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }
