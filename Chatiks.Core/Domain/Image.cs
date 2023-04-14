@@ -34,6 +34,10 @@ public class Image
         Width = image.Width;
         Height = image.Height;
     }
+    
+    protected Image()
+    {
+    }
 
     private static SixLabors.ImageSharp.Image GetImage(byte[] imageBytes)
     {
@@ -41,11 +45,18 @@ public class Image
 
         try
         {
-            image = SixLabors.ImageSharp.Image.Load(imageBytes);
+            image = SixLabors.ImageSharp.Image.Load(imageBytes, new PngDecoder());
         }
         catch
         {
-            throw new ArgumentException("Invalid image", nameof(imageBytes));
+            try
+            {
+                image = SixLabors.ImageSharp.Image.Load(imageBytes);
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException("Invalid image", nameof(imageBytes));
+            }
         }
 
         var delta = Math.Sqrt(imageBytes.Length / _maxImageBytes);

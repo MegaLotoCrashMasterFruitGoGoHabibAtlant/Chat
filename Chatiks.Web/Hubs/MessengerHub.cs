@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Chatiks.Chat.Domain;
 using Chatiks.Chat.Domain.ValueObjects;
 using Chatiks.Chat.DomainApi.Interfaces;
@@ -168,7 +172,7 @@ public class MessengerHub : Hub
             .Include(x => x.ChatUsers)
             .FirstAsync(x => x.Id == request.ChatId);
         
-        ((PublicChat)chat).AddChatUser(request.UserId);
+        ((PublicChat)chat).AddChatUser(request.UserId, chat.ChatUsers.First(x => x.ExternalUserId == inviter.Id));
         
         await _chatStore.UpdateChatAsync(chat);
 

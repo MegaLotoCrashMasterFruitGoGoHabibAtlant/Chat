@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Chatiks.Chat.Domain;
 
 public class PrivateChat : ChatBase

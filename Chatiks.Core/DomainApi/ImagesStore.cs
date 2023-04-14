@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Chatiks.Core.Data.EF;
 using Chatiks.Core.Domain;
 using Chatiks.Core.DomainApi.Interfaces;
@@ -49,6 +52,8 @@ public class ImagesStore: IImagesStore
     public async Task<ICollection<Image>> GetOrCreateImagesAsync(ICollection<string> base64Strings)
     {
         var images = base64Strings.Select(x => new Image(x)).ToList();
+        
+        base64Strings = images.Select(x => x.Base64String).ToList();
         
         var existingImages = _coreContext.Images
             .AsNoTracking()
