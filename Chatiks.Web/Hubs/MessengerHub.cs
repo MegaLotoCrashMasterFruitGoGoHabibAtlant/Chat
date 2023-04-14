@@ -45,23 +45,10 @@ public class MessengerHub : Hub
         {
             var user = await _userManager.FindByNameAsync(Context.User.Identity.Name);
 
-            var queryBase = _chatStore
-                .Chats.Include(x => x.Creator);
-            
-            var privateChat = await queryBase
-                .OfType<PrivateChat>()
-                .Include(x => x.Creator)
-                .Include(x => x.OtherUser)
-                .FirstOrDefaultAsync(x => x.Id == request.ChatId);
-            
-            var publicChat = await queryBase
-                .OfType<PublicChat>()
-                .Include(x => x.Creator)
+            var chat = await _chatStore.Chats
                 .Include(x => x.ChatUsers)
-                .FirstOrDefaultAsync(x => x.Id == request.ChatId);
+                .FirstAsync(x => x.Id == request.ChatId);
 
-            var chat = privateChat as ChatBase ?? publicChat;
-            
             var images = await _imagesStore.GetOrCreateImagesAsync(request.ImagesBase64 ?? new string[0]);
 
             chat.SendMessage(user.Id, request.Text, images.Select(x => x.Id).ToArray());
@@ -87,7 +74,7 @@ public class MessengerHub : Hub
                 response
             });
 
-            var connections = chat.GetChatUsers().Select(x => x.ExternalUserId)
+            var connections = chat.ChatUsers.Select(x => x.ExternalUserId)
                 .Where(u => u != user.Id)
                 .Select(u => _userConnections.GetValueOrDefault(u))
                 .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -115,7 +102,7 @@ public class MessengerHub : Hub
         var newChat = PublicChat.Create(user.Id, new ChatName(request.Name));
         newChat.AddChatUsers(otherIds);
 
-        await _chatStore.UpdateChatAsync(newChat);
+        await _chatStore.AddChatAsync(newChat);
 
         response.ChatId = newChat.Id;
 
@@ -151,7 +138,7 @@ public class MessengerHub : Hub
 
         var newChat = PrivateChat.Create(user.Id, other.Id);
         
-        await _chatStore.UpdateChatAsync(newChat);
+        await _chatStore.AddChatAsync(newChat);
         
         response.ChatId = newChat.Id;
 
@@ -185,28 +172,15 @@ public class MessengerHub : Hub
         response.FirstName = user.FullName.FirstName.ToString();
         response.LastName = user.FullName.LastName.ToString();
 
-        var queryBase = _chatStore
-            .Chats.Include(x => x.Creator);
-            
-        var privateChat = await queryBase
-            .OfType<PrivateChat>()
-            .Include(x => x.Creator)
-            .Include(x => x.OtherUser)
-            .FirstOrDefaultAsync(x => x.Id == request.ChatId);
-            
-        var publicChat = await queryBase
-            .OfType<PublicChat>()
-            .Include(x => x.Creator)
+        var chat = await _chatStore.Chats
             .Include(x => x.ChatUsers)
-            .FirstOrDefaultAsync(x => x.Id == request.ChatId);
-
-        var chat = privateChat as ChatBase ?? publicChat; 
+            .FirstAsync(x => x.Id == request.ChatId);
         
         ((PublicChat)chat).AddChatUser(request.UserId);
         
         await _chatStore.UpdateChatAsync(chat);
 
-        var connections = chat.GetChatUsers().Select(u => u.ExternalUserId)
+        var connections = chat.ChatUsers.Select(u => u.ExternalUserId)
             .Select(u => _userConnections.GetValueOrDefault(u))
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToArray();
@@ -229,28 +203,15 @@ public class MessengerHub : Hub
             LeavedUserName = me.FullName.ToString()
         };
 
-        var queryBase = _chatStore
-            .Chats.Include(x => x.Creator);
-            
-        var privateChat = await queryBase
-            .OfType<PrivateChat>()
-            .Include(x => x.Creator)
-            .Include(x => x.OtherUser)
-            .FirstOrDefaultAsync(x => x.Id == chatId);
-            
-        var publicChat = await queryBase
-            .OfType<PublicChat>()
-            .Include(x => x.Creator)
+        var chat = await _chatStore.Chats
             .Include(x => x.ChatUsers)
-            .FirstOrDefaultAsync(x => x.Id == chatId);
-
-        var chat = privateChat as ChatBase ?? publicChat;
+            .FirstAsync(x => x.Id == chatId);
 
         ((PublicChat)chat).LeaveChat(me.Id);
         
         await _chatStore.UpdateChatAsync(chat);
 
-        var connections = chat.GetChatUsers().Select(u => u.ExternalUserId)
+        var connections = chat.ChatUsers.Select(u => u.ExternalUserId)
             .Select(u => _userConnections.GetValueOrDefault(u))
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToArray();

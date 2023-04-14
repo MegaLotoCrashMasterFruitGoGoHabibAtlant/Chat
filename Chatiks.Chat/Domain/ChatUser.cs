@@ -15,6 +15,8 @@ public class ChatUser
     private readonly List<ChatUser> _invitedUsers = new();
 
     public long Id { get; }
+    
+    public bool IsChatCreator { get; init; }
 
     public long ChatId { get; }
 
@@ -22,18 +24,11 @@ public class ChatUser
 
     public long? InviterId { get; }
 
-    public ChatBase CreatedChat { get; init; }
+    public ChatBase Chat { get; init; }
 
-    /// <summary>
-    /// TODO Разобраться можно ли это смапить в EF
-    /// </summary>
-    public PrivateChat GetCreatedPrivateChat() => CreatedChat is PrivateChat priv ? priv : null;
+    public PrivateChat GetPrivateChat() => Chat is PrivateChat privateChat ? privateChat : null;
     
-    public PrivateChat EnteredPrivateChat { get; init; }
-    
-    public PublicChat GetCreatedPublicChat() => CreatedChat is PublicChat pub ? pub : null;
-    
-    public PublicChat EnteredPublicChat { get; init; }
+    public PublicChat GetPublicChat() => Chat is PublicChat publicChat ? publicChat : null;
 
     public ChatUser Inviter { get; init; }
 
@@ -42,18 +37,26 @@ public class ChatUser
     
     [BackingField(nameof(_invitedUsers))]
     public virtual IReadOnlyCollection<ChatUser> InvitedUsers => _invitedUsers.AsReadOnly();
+
+    public void LeaveChat()
+    {
+        if (Chat is PublicChat publicChat)
+        {
+            publicChat.LeaveChat(ExternalUserId);
+        }
+        else
+        {
+            throw new Exception("Can't leave private chat");
+        }
+    }
     
     public static ChatUser CreateCreator(ChatBase createdChat, long externalUserId)
     {
-        if (createdChat.CreatorId != 0)
-        {
-            throw new InvalidOperationException("Chat already has creator");
-        }
-        
         return new()
         {
             ExternalUserId = externalUserId,
-            CreatedChat = createdChat
+            Chat = createdChat,
+            IsChatCreator = true
         };
     }
     
@@ -62,9 +65,9 @@ public class ChatUser
         return new()
         {
             ExternalUserId = externalUserId,
-            EnteredPrivateChat = enterChat is PrivateChat priv ? priv : null,
-            EnteredPublicChat = enterChat is PublicChat pub ? pub : null,
-            Inviter = inviter
+            Chat = enterChat,
+            Inviter = inviter,
+            IsChatCreator = false
         };
     }
 }

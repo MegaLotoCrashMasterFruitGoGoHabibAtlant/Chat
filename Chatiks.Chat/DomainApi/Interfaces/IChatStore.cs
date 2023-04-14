@@ -19,4 +19,8 @@ public interface IChatStore
     Task<ICollection<ChatBase>> UpdateChatsAsync(ICollection<ChatBase> chats);
     
     Task<bool> IsUserInChatAsync(long externalUserId, long chatId);
+    
+    Task<ChatBase> AddChatAsync(ChatBase chat);
+    
+    Task<ICollection<ChatBase>> AddChatsAsync(ICollection<ChatBase> chats);
 }

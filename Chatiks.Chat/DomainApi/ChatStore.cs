@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Chatiks.Chat.Data.EF;
 using Chatiks.Chat.Domain;
 using Chatiks.Chat.DomainApi.Interfaces;
@@ -38,6 +35,8 @@ public class ChatStore : IChatStore
     {
         _context.Attach(chat);
 
+        _context.Update(chat);
+
         await _context.SaveChangesAsync();
         
         return chat;
@@ -46,6 +45,8 @@ public class ChatStore : IChatStore
     public async Task<ICollection<ChatBase>> UpdateChatsAsync(ICollection<ChatBase> chats)
     {
         _context.AttachRange(chats);
+        
+        _context.UpdateRange(chats);
 
         await _context.SaveChangesAsync();
 
@@ -54,19 +55,25 @@ public class ChatStore : IChatStore
 
     public async Task<bool> IsUserInChatAsync(long externalUserId, long chatId)
     {
-        var chatQuery = _context.Chats
-            .Where(x => x.Id == chatId);
-        
-        var privateChatsContains = await chatQuery
-            .OfType<PrivateChat>()
-            .SelectMany(x => new [] {x.Creator, x.OtherUser})
-            .AnyAsync(x => x.ExternalUserId == externalUserId);
-            
-       var publicChatsContains = await chatQuery
-            .OfType<PublicChat>()
-            .SelectMany(x => x.ChatUsers)
-            .AnyAsync(x => x.ExternalUserId == externalUserId);
+        return await _context.Chats.Where(x => x.Id == chatId)
+            .AnyAsync(x => x.ChatUsers.Any(y => y.ExternalUserId == externalUserId));
+    }
 
-        return privateChatsContains || publicChatsContains;
+    public async Task<ChatBase> AddChatAsync(ChatBase chat)
+    {
+        await _context.AddAsync(chat);
+        
+        await _context.SaveChangesAsync();
+        
+        return chat;
+    }
+
+    public async Task<ICollection<ChatBase>> AddChatsAsync(ICollection<ChatBase> chats)
+    {
+        await _context.AddRangeAsync(chats);
+        
+        await _context.SaveChangesAsync();
+        
+        return chats;
     }
 }

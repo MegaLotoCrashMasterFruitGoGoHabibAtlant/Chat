@@ -32,10 +32,10 @@ public class ChatContext : DbContext
         builder.Entity<ChatBase>(cb =>
         {
             cb.HasKey(x => x.Id);
-            
-            cb.HasOne(x => x.Creator)
-                .WithOne(x => x.CreatedChat)
-                .HasForeignKey<ChatBase>(x => x.CreatorId);
+
+            cb.HasMany(x => x.ChatUsers)
+                .WithOne(x => x.Chat)
+                .HasForeignKey(x => x.ChatId);
             
             cb.HasMany(x => x.Messages)
                 .WithOne(x => x.Chat)
@@ -49,23 +49,11 @@ public class ChatContext : DbContext
 
         builder.Entity<PrivateChat>(pc =>
         {
-            pc.HasOne(x => x.OtherUser)
-                .WithOne(x => x.EnteredPrivateChat)
-                .HasForeignKey<PrivateChat>(x => x.OtherUserId);
-
-            pc.HasOne(x => x.OtherUser)
-                .WithOne(x => x.EnteredPrivateChat)
-                .HasForeignKey<ChatUser>(x => x.ChatId);
-
             pc.ToTable("PrivateChat");
         });
         
         builder.Entity<PublicChat>(pc =>
         {
-            pc.HasMany(x => x.ChatUsers)
-                .WithOne(x => x.EnteredPublicChat)
-                .HasForeignKey(x => x.ChatId);
-
             pc.OwnsOne(x => x.ChatName, cn =>
             {
                 cn.Property(x => x.Value)
@@ -121,4 +109,6 @@ public class ChatContext : DbContext
                 .HasForeignKey(x => x.InviterId);
         });
     }
+
+
 }

@@ -61,8 +61,10 @@ public class GetUsersHandler: IRequestHandler<GetUsersRequest, GetUsersResponse>
         {
             var excludeUsers = await _chatStore.Chats
                 .OfType<PrivateChat>()
-                .Where(x => x.OtherUser.Id == me.Id || x.Creator.Id == me.Id)
-                .Select(x => x.OtherUser.Id == me.Id ? x.Creator.Id : x.OtherUser.Id)
+                .Where(x => x.ChatUsers.Any(y => y.ExternalUserId == me.Id))
+                .SelectMany(x => x.ChatUsers)
+                .Where(x => x.ExternalUserId != me.Id)
+                .Select(x => x.ExternalUserId)
                 .ToArrayAsync(cancellationToken: cancellationToken);
 
             usersQuery = usersQuery
@@ -75,19 +77,23 @@ public class GetUsersHandler: IRequestHandler<GetUsersRequest, GetUsersResponse>
                 .Union(_userManager.Users.Where(u => request.AdditionalIds.Contains(u.Id)));
         }
 
-        var allCount = await usersQuery.CountAsync();
+        var allCount = await usersQuery.CountAsync(cancellationToken: cancellationToken);
         
         var users = await usersQuery
             .Skip(request.Offset)
             .Take(request.Count)
-            .ProjectToType<UserResponse>(_typeAdapterConfig)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken: cancellationToken);
 
         return new GetUsersResponse
         {
             EntitiesLeft = Math.Max(allCount - request.Offset - users.Length, 0),
             
-            Users = users
+            Users = users.Select(x => new UserResponse()
+            {
+                FirstName = x.FullName.FirstName.ToString(),
+                LastName = x.FullName.LastName.ToString(),
+                Id = x.Id,
+            }).ToArray()
         };
     }
 }

@@ -1,35 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Chatiks.Chat.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace Chatiks.Chat.Domain;
 
-public class PublicChat: ChatBase
+public class PublicChat : ChatBase
 {
-    private List<ChatUser> _chatUsers = new();
-
     protected PublicChat()
     {
-        
     }
 
-    [BackingField(nameof(_chatUsers))]
-    public IReadOnlyCollection<ChatUser> ChatUsers => _chatUsers.AsReadOnly();
-    
     public ChatName ChatName { get; private set; }
-    
+
     public void AddChatUser(long externalUserId, ChatUser inviter = null)
     {
-        if (_chatUsers.Any(x => x.ExternalUserId == externalUserId))
+        if (ChatUsers.Any(x => x.ExternalUserId == externalUserId))
         {
             throw new InvalidOperationException("User already in chat");
         }
-        
-        _chatUsers.Add(ChatUser.CreateEnteredUser(this, externalUserId, inviter));
+
+        AddUser(ChatUser.CreateEnteredUser(this, externalUserId, inviter));
     }
-    
+
     public void AddChatUsers(IEnumerable<long> externalUsersIds, ChatUser inviter = null)
     {
         foreach (var externalUserId in externalUsersIds)
@@ -44,30 +34,25 @@ public class PublicChat: ChatBase
         {
             CreationTime = DateTime.Now
         };
-        
-        publicChat.Creator = ChatUser.CreateCreator(publicChat, externalCreatorId);
-        
+
+        var creator = ChatUser.CreateCreator(publicChat, externalCreatorId);
+
         publicChat.ChatName = chatName;
-        
-        publicChat.AddChatUser(externalCreatorId, null);
-        
+
+        publicChat.AddUser(creator);
+
         return publicChat;
     }
-    
+
     public void LeaveChat(long externalUserId)
     {
-        var chatUser = _chatUsers.FirstOrDefault(x => x.ExternalUserId == externalUserId);
-        
+        var chatUser = ChatUsers.FirstOrDefault(x => x.ExternalUserId == externalUserId);
+
         if (chatUser == null)
         {
             throw new InvalidOperationException("User is not in chat");
         }
-        
-        _chatUsers.Remove(chatUser);
-    }
 
-    public override IReadOnlyCollection<ChatUser> GetChatUsers()
-    {
-        return _chatUsers.AsReadOnly();
+        RemoveUser(chatUser);
     }
 }

@@ -44,8 +44,10 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
 
             var usersHasChatsWithMeIds = await _chatStore.Chats
                 .OfType<PrivateChat>()
-                .Where(x => x.OtherUser.Id == me.Id || x.Creator.Id == me.Id)
-                .Select(x => x.OtherUser.Id == me.Id ? x.Creator.Id : x.OtherUser.Id)
+                .Where(x => x.ChatUsers.Any(x => x.Id== me.Id))
+                .SelectMany(x => x.ChatUsers)
+                .Where(x => x.ExternalUserId != me.Id)
+                .Select(x => x.ExternalUserId)
                 .ToArrayAsync(cancellationToken: cancellationToken);
 
             var idsFilteredByNameFilter = await _userManager.Users
@@ -56,7 +58,7 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
             
             var privateChatsFilteredQuery = _chatStore.Chats
                 .OfType<PrivateChat>()
-                .Where(x => idsFilteredByNameFilter.Contains(x.OtherUser.Id) || idsFilteredByNameFilter.Contains(x.Creator.Id))
+                .Where(x => x.ChatUsers.Any(c => idsFilteredByNameFilter.Contains(c.ExternalUserId)))
                 .Cast<ChatBase>();
             
             chatsQuery = publicChatsFilteredQuery.Union(privateChatsFilteredQuery);
@@ -68,21 +70,11 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
         }
 
         chatsQuery = chatsQuery
-            .Include(x => x.Creator)
+            .Include(x => x.ChatUsers)
             .Include(x => x.Messages.OrderByDescending(m => m.SendTime).Take(1));
 
-        var privateChats = await chatsQuery
-            .OfType<PrivateChat>()
-            .Include(x => x.OtherUser)
-            .ToArrayAsync(cancellationToken: cancellationToken);
+        var chats = await chatsQuery.ToArrayAsync(cancellationToken: cancellationToken);
 
-        var publicChats = await chatsQuery
-            .OfType<PublicChat>()
-            .Include(x => x.ChatUsers)
-            .ToArrayAsync(cancellationToken: cancellationToken);
-        
-        var chats = privateChats.Cast<ChatBase>().Concat(publicChats.Cast<ChatBase>()).ToArray();
-        
         var chatIds = chats.Select(x => x.Id).ToArray();
 
         foreach (var chat in chats)
@@ -97,7 +89,7 @@ public class GetChatsQueryHandler: IRequestHandler<GetChatsRequest, ICollection<
             
             if (chat is PrivateChat privateChat)
             {
-                var other = privateChat.GetChatUsers().FirstOrDefault(c => c.ExternalUserId != me.Id);
+                var other = privateChat.GetOtherUser();
                 var otherUser = await _userManager.FindByIdAsync(other.ExternalUserId.ToString());
                 chatData.Name = otherUser.FullName.ToString();
             }
