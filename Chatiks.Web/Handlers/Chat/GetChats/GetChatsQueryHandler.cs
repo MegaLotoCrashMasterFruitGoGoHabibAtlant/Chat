@@ -101,7 +101,7 @@ public class GetChatsQueryHandler : IRequestHandler<GetChatsRequest, ICollection
             if (lastMess != null)
             {
                 var lastMessageOwner = await _userManager.FindByIdAsync(lastMess.ChatUser.ExternalUserId.ToString());
-                chatData.LastMessage = lastMess.Text.ToString();
+                chatData.LastMessage = lastMess.Text?.ToString() ?? "image";
                 chatData.LastMessageSender = lastMessageOwner.FullName.ToString();
                 chatData.LastMessageSendTime = lastMess.SendTime.ToShortDateString();
             }

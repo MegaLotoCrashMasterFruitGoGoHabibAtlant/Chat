@@ -71,6 +71,10 @@ public class ChatContext : DbContext
             cm.HasOne(x => x.ChatUser)
                 .WithMany(x => x.Messages)
                 .HasForeignKey(x => x.ChatUserId);
+            
+            cm.HasOne(x => x.RepliedMessage)
+                .WithMany(x => x.Replies)
+                .HasForeignKey(x => x.RepliedMessageId);
 
             cm.HasOne(x => x.Chat)
                 .WithMany(x => x.Messages)
@@ -88,7 +92,7 @@ public class ChatContext : DbContext
             {
                 text.Property(x => x.Value)
                     .HasColumnName("Text")
-                    .IsRequired();
+                    .IsRequired(false);
             });
         });
         

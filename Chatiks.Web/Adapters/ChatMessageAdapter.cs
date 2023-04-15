@@ -15,7 +15,7 @@ public class ChatMessageAdapter
     public long Id => _message.Id;
     public long ChatId => _message.ChatId;
     public long OwnerId => _message.ChatUser.ExternalUserId;
-    public string Text => _message.Text.ToString();
+    public string Text => _message.Text?.ToString();
     public string SendTime => _message.SendTime.ToString();
     public string SenderName => _sender?.FullName?.ToString(); 
     public bool IsMe => false;

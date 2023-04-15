@@ -50,6 +50,21 @@ public class ChatUser
         }
     }
     
+    public void SendMessage(string text = null, params long[] externalImagesIds)
+    {
+       Chat.SendMessage(this.ExternalUserId, text, externalImagesIds);
+    }
+    
+    public void ReplyMessage(long repliedMessageId, string text = null, params long[] externalImagesIds)
+    {
+        Chat.ReplyMessage(this.ExternalUserId, repliedMessageId, text, externalImagesIds);
+    }
+    
+    public void DeleteMessage(long messageId)
+    {
+        Chat.DeleteMessage(messageId, ExternalUserId);
+    }
+    
     public static ChatUser CreateCreator(ChatBase createdChat, long externalUserId)
     {
         return new()

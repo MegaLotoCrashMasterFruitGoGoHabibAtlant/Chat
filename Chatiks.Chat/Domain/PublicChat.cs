@@ -13,21 +13,28 @@ public class PublicChat : ChatBase
 
     public ChatName ChatName { get; private set; }
 
-    public void AddChatUser(long externalUserId, ChatUser inviter = null)
+    public void AddChatUser(long externalUserId, long? inviterExternalId = null)
     {
         if (ChatUsers.Any(x => x.ExternalUserId == externalUserId))
         {
             throw new InvalidOperationException("User already in chat");
         }
+        
+        var inviter = ChatUsers.FirstOrDefault(x => x.ExternalUserId == inviterExternalId);
+        
+        if(inviterExternalId.HasValue && inviter == null)
+        {
+            throw new InvalidOperationException("Inviter is not in chat");
+        }
 
         AddUser(ChatUser.CreateEnteredUser(this, externalUserId, inviter));
     }
 
-    public void AddChatUsers(IEnumerable<long> externalUsersIds, ChatUser inviter = null)
+    public void AddChatUsers(IEnumerable<long> externalUsersIds, long? inviterExternalId = null)
     {
         foreach (var externalUserId in externalUsersIds)
         {
-            AddChatUser(externalUserId, inviter);
+            AddChatUser(externalUserId, inviterExternalId);
         }
     }
 

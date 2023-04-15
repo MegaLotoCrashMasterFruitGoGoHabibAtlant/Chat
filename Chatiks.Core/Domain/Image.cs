@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
@@ -8,6 +9,7 @@ namespace Chatiks.Core.Domain;
 public class Image
 {
     private static int _maxImageBytes = 12000;
+    private static Regex _replaceRegex = new(@"data:image\/(png|jpeg|jpg);base64,", RegexOptions.Compiled);
 
     public long Id { get; }
 
@@ -21,7 +23,7 @@ public class Image
     {
         var image = GetImage(imageBytes);
 
-        Base64String = image.ToBase64String(PngFormat.Instance);
+        Base64String = _replaceRegex.Replace(image.ToBase64String(PngFormat.Instance), "");
         Width = image.Width;
         Height = image.Height;
     }
@@ -30,7 +32,7 @@ public class Image
     {
         var image = GetImage(Convert.FromBase64String(base64String));
 
-        Base64String = image.ToBase64String(PngFormat.Instance);
+        Base64String = _replaceRegex.Replace(image.ToBase64String(PngFormat.Instance), "");
         Width = image.Width;
         Height = image.Height;
     }
